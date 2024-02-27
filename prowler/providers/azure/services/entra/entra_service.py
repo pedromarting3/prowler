@@ -1,6 +1,7 @@
-from msgraph import GraphServiceClient
-from dataclasses import dataclass
 import asyncio
+from dataclasses import dataclass
+
+from msgraph import GraphServiceClient
 
 from prowler.lib.logger import logger
 from prowler.providers.azure.lib.service.service import AzureService
@@ -10,8 +11,10 @@ from prowler.providers.azure.lib.service.service import AzureService
 class Entra(AzureService):
     def __init__(self, azure_audit_info):
         super().__init__(GraphServiceClient, azure_audit_info)
-        self.users  = asyncio.get_event_loop().run_until_complete(self.__get_users__())
-        self.organizations = asyncio.get_event_loop().run_until_complete(self.__get_organizations__())
+        self.users = asyncio.get_event_loop().run_until_complete(self.__get_users__())
+        self.organizations = asyncio.get_event_loop().run_until_complete(
+            self.__get_organizations__()
+        )
         self.roles = asyncio.get_event_loop().run_until_complete(self.__get_roles__())
 
     async def __get_users__(self):
@@ -21,12 +24,7 @@ class Entra(AzureService):
             for subscription, client in self.clients.items():
                 users_list = await client.users.get()
                 for user in users_list.value:
-                    users.append(
-                        User(
-                            id=user.id,
-                            name=user.display_name
-                        )
-                    )
+                    users.append(User(id=user.id, name=user.display_name))
             if users:
                 return users
             else:
@@ -37,7 +35,7 @@ class Entra(AzureService):
             )
 
         return users
-    
+
     async def __get_organizations__(self):
         try:
             organizations = []
@@ -45,10 +43,7 @@ class Entra(AzureService):
                 organizations_list = await client.organization.get()
                 for organization in organizations_list.value:
                     organizations.append(
-                        Organization(
-                            id=organization.id,
-                            name=organization.display_name
-                        )
+                        Organization(id=organization.id, name=organization.display_name)
                     )
             if organizations:
                 return organizations
@@ -60,7 +55,7 @@ class Entra(AzureService):
             )
 
         return organizations
-    
+
     async def __get_roles__(self):
         try:
             roles = []
@@ -70,12 +65,7 @@ class Entra(AzureService):
                 roles_list = await client.role_management.get()
                 print(roles_list)
                 for role in roles_list.value:
-                    roles.append(
-                        Role(
-                            id=role.id,
-                            name=role.display_name
-                        )
-                    )
+                    roles.append(Role(id=role.id, name=role.display_name))
             if roles:
                 return roles
             else:
@@ -93,10 +83,12 @@ class User:
     id: str
     name: str
 
+
 @dataclass
 class Organization:
     id: str
     name: str
+
 
 @dataclass
 class Role:
