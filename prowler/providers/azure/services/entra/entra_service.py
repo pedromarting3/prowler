@@ -59,10 +59,10 @@ class Entra(AzureService):
     async def __get_roles__(self):
         try:
             roles = []
-            scopes = "https://graph.microsoft.com/v1.0/roleManagement/directory/roleDefinitions/"
-            client = GraphServiceClient(credentials=self.credentials, scopes=scopes)
             for subscription, client in self.clients.items():
-                roles_list = await client.role_management.get()
+                roles_list = (
+                    await client.role_management.directory.role_definitions.get()
+                )
                 print(roles_list)
                 for role in roles_list.value:
                     roles.append(Role(id=role.id, name=role.display_name))
